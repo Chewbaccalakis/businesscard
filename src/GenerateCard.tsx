@@ -28,9 +28,6 @@ const FootnoteColor = rgb(92 / 255, 92 / 255, 92 / 255);
 //Fonts
 
 
-// Misc
-const divider_length = 190; // Footer Line Length
-
 const state = { headerX: 0, headerEndX: 0 }; // state for sides of header
 
 
