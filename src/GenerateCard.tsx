@@ -98,6 +98,8 @@ export const GenerateCard = async (name: string, title: string, email: string, n
 
   // Text Colors
   const textColor = rgb(0, 0, 0);
+  const lightblack = rgb(69 / 255, 69 / 255, 69 / 255);
+  const lighterblack = rgb(92 / 255, 92 / 255, 92 / 255);
 
 
   // Text
@@ -115,14 +117,14 @@ export const GenerateCard = async (name: string, title: string, email: string, n
   
   
   drawHeader(page, header, height - 20, fontBold, 12, textColor);
-  page.drawText(`Name: ${name}`, { x: state.headerX, y: height - 45, size: 9, font: font, color: textColor });
-  page.drawText(`Title: ${title}`, { x: state.headerX, y: height - 55, size: 9, font: font, color: textColor });
-  page.drawText(`Email: ${email}`, { x: state.headerX, y: height -90, size: 9, font, color: textColor });
-  page.drawText(`Number: ${number}`, { x: state.headerX, y: height - 100, size: 9, font, color: textColor });
-  drawCenteredText(page, footnote1, height - 124, font, 8, textColor);
+  page.drawText(`${name}`, { x: state.headerX, y: height - 45, size: 9, font: font, color: lightblack });
+  page.drawText(`${title}`, { x: state.headerX, y: height - 55, size: 9, font: font, color: lightblack });
+  page.drawText(`${email}`, { x: state.headerX, y: height -90, size: 9, font, color: lightblack });
+  page.drawText(`${number}`, { x: state.headerX, y: height - 100, size: 9, font, color: lightblack });
+  drawCenteredText(page, footnote1, height - 124, font, 8, lighterblack);
   divider(page, 190, height - 127.5)
-  drawCenteredText(page, footnote2, height - 135.5, font, 8, textColor);
-  drawLogo(page, pngImage, pngDims, height, `that others may live...`, 8, font, textColor);
+  drawCenteredText(page, footnote2, height - 135.5, font, 8, lighterblack);
+  drawLogo(page, pngImage, pngDims, height, `that others may live...`, 8, font, lighterblack);
 
   // Serialize the PDF to bytes
   const pdfBytes = await pdfDoc.save();
