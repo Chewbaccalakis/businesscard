@@ -1,5 +1,6 @@
 import React, { useState, ChangeEvent } from "react";
 import logo from "./assets/logo.png";
+import { GenerateCard } from "./GenerateCard";
 
 const BusinessCardGenerator: React.FC = () => {
   // State variables with appropriate types
@@ -16,7 +17,7 @@ const BusinessCardGenerator: React.FC = () => {
 
   const handleGenerate = () => {
     // Future logic to generate a business card goes here
-    console.log({ name, title, email, number });
+    GenerateCard(name, title, email, number);
   };
 
   return (
