@@ -35,7 +35,14 @@ const state = { headerX: 0, headerEndX: 0 }; // state for sides of header
 
 
 // Draw Header Function
-const drawHeader = (page, text, y, font, size, color) => {
+const drawHeader = (
+    page: any,
+    text: string,
+    y: any,
+    font: any,
+    size: number,
+    color: ReturnType<typeof rgb>
+  ) => {
     const textWidth = font.widthOfTextAtSize(text, size);
     const pageWidth = page.getWidth();
     state.headerX = (pageWidth - textWidth) / 2;
@@ -47,7 +54,16 @@ const drawHeader = (page, text, y, font, size, color) => {
 
 
   // Draw Logo Function
-  const drawLogo = async (page, pdfDoc, logo, text, size, font, color, height) => {
+  const drawLogo = async (
+    page: any,
+    pdfDoc: PDFDocument,
+    logo: string, // URL or path to the logo image
+    text: string,
+    size: number,
+    font: any,
+    color: ReturnType<typeof rgb>,
+    height: number
+  ) => {
     const pngImageBytes = await fetch(logo).then((res) => res.arrayBuffer())
     const pngImage = await pdfDoc.embedPng(pngImageBytes)
     const pngDims = pngImage.scale(0.09)
@@ -81,7 +97,17 @@ const drawHeader = (page, text, y, font, size, color) => {
 
 
 // Draw Footer Function
-const drawFooter = async (page, pdfDoc, mailicon, footnote1, footnote2, size, font, color, height) => {
+const drawFooter = async (
+  page: any,
+  pdfDoc: PDFDocument,
+  mailicon: string,
+  footnote1: string,
+  footnote2: string,
+  size: number,
+  font: any,
+  color: ReturnType<typeof rgb>,
+  height: number
+) => {
   // Mail Icon Loading
   const mailImageBytes = await fetch(mailicon).then((res) => res.arrayBuffer());
   const mailImage = await pdfDoc.embedPng(mailImageBytes);
