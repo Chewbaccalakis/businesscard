@@ -2,7 +2,26 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { saveAs } from 'file-saver';  // Install file-saver for client-side file download
 import * as fontkit from '@pdf-lib/fontkit';
 import arimottf from '../public/assets/arimo/Arimo-Regular.ttf';
-//import { drawHeader } from './components/buildheader';
+
+// Configuration
+
+// Text
+const header = `King County 4x4 Search and Rescue`;
+const footnote1 = `P.O. Box 50785 • Bellevue, WA 98015`;
+const footnote2 = `100% Volunteer • Registered 501(c)(3) Non-Profit`;
+const logocaption = `that others may live...`;
+
+// Images
+const mailicon = `/assets/email.png`;
+const logo = `/assets/logo.png`;
+
+// Text Colors
+const HeaderColor = rgb(0, 0, 0);
+const ContactInfoColor = rgb(92 / 255, 92 / 255, 92 / 255);
+const LogoCaptionColor = rgb(92 / 255, 92 / 255, 92 / 255);
+const FootnoteColor = rgb(92 / 255, 92 / 255, 92 / 255);
+
+//Fonts
 
 const state = { headerX: 0, headerEndX: 0 };
 
@@ -102,9 +121,10 @@ const drawCenteredText = (page, text, y, font, size, color) => {
 export const GenerateCard = async (name: string, title: string, email: string, number: string) => {
   console.log({ name, title, email, number });
 
-  // Create a new PDF document
+  // Create PDF document
   const pdfDoc = await PDFDocument.create();
 
+  // Font Loading
   pdfDoc.registerFontkit(fontkit)
   console.log('Registered fontkit')
 
@@ -120,47 +140,34 @@ export const GenerateCard = async (name: string, title: string, email: string, n
   //const arimoFont = await pdfDoc.embedFont(arimoFontBytes);
   //console.log('Arimo-Regular font embedded successfully: ', arimoFont);
 
-  // Define the size of the business card (2" x 3.5")
-  const width = 3.5 * 72;  // 2 inches = 144 points
-  const height = 2 * 72;  // 3.5 inches = 252 points
-
-  // Add a page with the specified business card dimensions
+  // Page Setup
+  const width = 3.5 * 72;  // 3.5 inches = 252 points
+  const height = 2 * 72;  // 2 inches = 144 points
   const page = pdfDoc.addPage([width, height]);
-  
 
-  // Text Colors
-  const textColor = rgb(0, 0, 0);
-  const lightblack = rgb(69 / 255, 69 / 255, 69 / 255);
-  const lighterblack = rgb(92 / 255, 92 / 255, 92 / 255);
+  // Image Loading
 
-
-  // Text
-  const header = `King County 4x4 Search and Rescue`;
-  const footnote1 = `P.O. Box 50785 • Bellevue, WA 98015`
-  const footnote2 = `100% Volunteer • Registered 501(c)(3) Non-Profit`
-
-  const pngImageBytes = await fetch(`/assets/logo.png`).then((res) => res.arrayBuffer())
+  // Logo Image
+  const pngImageBytes = await fetch(logo).then((res) => res.arrayBuffer())
   const pngImage = await pdfDoc.embedPng(pngImageBytes)
   const pngDims = pngImage.scale(0.09)
 
-  const mailpngImageBytes = await fetch(`/assets/email.png`).then((res) => res.arrayBuffer())
+  // Mail Image
+  const mailpngImageBytes = await fetch(mailicon).then((res) => res.arrayBuffer())
   const mailpngImage = await pdfDoc.embedPng(mailpngImageBytes)
   const mailpngDims = mailpngImage.scale(0.023)
+  
 
-  // Draw text for business card details (adjust coordinates to fit design)
-  const textWidth = font.widthOfTextAtSize(header, 12); // Get the header width
-  const x = (width - textWidth) / 2;  // Center header horizontally
-  
-  
-  drawHeader(page, header, height - 20, fontBold, 12, textColor);
-  page.drawText(`${name}`, { x: state.headerX, y: height - 45, size: 9, font: font, color: lightblack });
-  page.drawText(`${title}`, { x: state.headerX, y: height - 55, size: 9, font: font, color: lightblack });
-  page.drawText(`${email}`, { x: state.headerX, y: height -90, size: 9, font, color: lightblack });
-  page.drawText(`${number}`, { x: state.headerX, y: height - 100, size: 9, font, color: lightblack });
-  drawPOBoxWithIcon(page, mailpngImage, mailpngDims, height, footnote1, 8, font, lighterblack);
+  // Page Drawing
+  drawHeader(page, header, height - 20, fontBold, 12, HeaderColor);
+  page.drawText(`${name}`, { x: state.headerX, y: height - 45, size: 9, font: font, color: ContactInfoColor });
+  page.drawText(`${title}`, { x: state.headerX, y: height - 55, size: 9, font: font, color: ContactInfoColor });
+  page.drawText(`${email}`, { x: state.headerX, y: height -90, size: 9, font, color: ContactInfoColor });
+  page.drawText(`${number}`, { x: state.headerX, y: height - 100, size: 9, font, color: ContactInfoColor });
+  drawPOBoxWithIcon(page, mailpngImage, mailpngDims, height, footnote1, 8, font, FootnoteColor);
   divider(page, 190, height - 127.5)
-  drawCenteredText(page, footnote2, height - 135.5, font, 8, lighterblack);
-  drawLogo(page, pngImage, pngDims, height, `that others may live...`, 8, font, lighterblack);
+  drawCenteredText(page, footnote2, height - 135.5, font, 8, FootnoteColor);
+  drawLogo(page, pngImage, pngDims, height, logocaption, 8, font, LogoCaptionColor);
 
   // Serialize the PDF to bytes
   const pdfBytes = await pdfDoc.save();
