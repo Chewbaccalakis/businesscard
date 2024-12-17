@@ -5,6 +5,10 @@ import arimottf from '../public/assets/arimo/Arimo-Regular.ttf';
 
 // Configuration
 
+// Page Size
+const width = 3.5 * 72;  // 3.5 inches = 252 points
+const height = 2 * 72;  // 2 inches = 144 points
+
 // Text
 const header = `King County 4x4 Search and Rescue`;
 const footnote1 = `P.O. Box 50785 • Bellevue, WA 98015`;
@@ -23,8 +27,14 @@ const FootnoteColor = rgb(92 / 255, 92 / 255, 92 / 255);
 
 //Fonts
 
-const state = { headerX: 0, headerEndX: 0 };
 
+// Misc
+const divider_length = 190; // Footer Line Length
+
+const state = { headerX: 0, headerEndX: 0 }; // state for sides of header
+
+
+// Draw Header Function
 const drawHeader = (page, text, y, font, size, color) => {
     const textWidth = font.widthOfTextAtSize(text, size);
     const pageWidth = page.getWidth();
@@ -35,59 +45,12 @@ const drawHeader = (page, text, y, font, size, color) => {
 
   };
 
-const drawCenteredText = (page, text, y, font, size, color) => {
-    const textWidth = font.widthOfTextAtSize(text, size);
-    const pageWidth = page.getWidth();
-    const x = (pageWidth - textWidth) / 2;
-  
-    page.drawText(text, { x, y, size, font, color });
-  };
 
-  const divider = (page, width, y) => {
-    page.drawRectangle({
-      x: (page.getWidth() - width) / 2, // Center the line horizontally
-      y: y,                            // Vertical position of the line
-      width: width,                    // Length of the line
-      height: 1,                       // Thickness of the line
-      color: rgb(0, 0, 0),             // Solid black color
-    });
-  };  
-
-  const drawPOBoxWithIcon = (page, pngImage, pngDims, height, text, size, font, color) => {
-    // Space between the icon and the P.O. Box text
-    const iconTextDistance = 3; // Adjust the spacing as required
-    
-    // Use the original vertical position for the P.O. Box text (no change in Y value)
-    const textY = height - 124;  // Keep this as is to match previous position
-    
-    // Center the P.O. Box text horizontally
-    const textWidth = font.widthOfTextAtSize(text, size);
-    const textX = (page.getWidth() - textWidth) / 2;
-  
-    // Draw the P.O. Box text
-    page.drawText(text, {
-      x: textX,
-      y: textY,
-      size: size,
-      font: font,
-      color: color,
-    });
-  
-    // Draw the icon just to the left of the P.O. Box text, vertically aligned with it
-    page.drawImage(
-      pngImage, { 
-        x: textX - pngDims.width - iconTextDistance,  // Position to the left of the text
-        y: textY - 2.5,                                     // Vertically center with text
-        width: pngDims.width,
-        height: pngDims.height,
-      });
-  };
-  
-
-  const drawLogo = (page, pngImage, pngDims, height, text, size, font, color) => {
-    // Log out the dimensions and values for debugging
-    console.log('PNG Dimensions:', pngDims);
-    console.log('Height for text:', height);
+  // Draw Logo Function
+  const drawLogo = async (page, pdfDoc, logo, text, size, font, color, height) => {
+    const pngImageBytes = await fetch(logo).then((res) => res.arrayBuffer())
+    const pngImage = await pdfDoc.embedPng(pngImageBytes)
+    const pngDims = pngImage.scale(0.09)
     
     // Draw the logo
     page.drawImage(
@@ -116,6 +79,64 @@ const drawCenteredText = (page, text, y, font, size, color) => {
     });
 };
 
+
+// Draw Footer Function
+const drawFooter = async (page, pdfDoc, mailicon, footnote1, footnote2, size, font, color, height) => {
+  // Mail Icon Loading
+  const mailImageBytes = await fetch(mailicon).then((res) => res.arrayBuffer());
+  const mailImage = await pdfDoc.embedPng(mailImageBytes);
+  const mailDims = mailImage.scale(0.023); // Adjust the scaling as needed
+
+  const iconTextDistance = 3; // Space between the icon and the P.O. Box text
+
+  // Use the original vertical position for the P.O. Box text
+  const footnote1Y = height - 124;
+  const dividerY = height - 127.5;
+
+  // Center the P.O. Box text horizontally
+  const footnote1Width = font.widthOfTextAtSize(footnote1, size);
+  const footnote1X = (page.getWidth() - footnote1Width) / 2;
+
+  // Draw the P.O. Box text
+  page.drawText(footnote1, {
+    x: footnote1X,
+    y: footnote1Y,
+    size,
+    font,
+    color,
+  });
+
+  // Draw the icon just to the left of the P.O. Box text
+  page.drawImage(mailImage, {
+    x: footnote1X - mailDims.width - iconTextDistance, // Position to the left of the text
+    y: footnote1Y - 2.5, // Vertically center with text
+    width: mailDims.width,
+    height: mailDims.height,
+  });
+
+  // Draw the divider line
+  page.drawRectangle({
+    x: (page.getWidth() - 190) / 2, // Adjust the width (190) of the divider if needed
+    y: dividerY,
+    width: 190, // Length of the line
+    height: 1, // Thickness of the line
+    color,
+  });
+
+  // Center Footnote 2 text
+  const footnote2Width = font.widthOfTextAtSize(footnote2, size);
+  const footnote2X = (page.getWidth() - footnote2Width) / 2;
+  const footnote2Y = height - 135.5;
+
+  page.drawText(footnote2, {
+    x: footnote2X,
+    y: footnote2Y,
+    size,
+    font,
+    color,
+  });
+};
+
   
 
 export const GenerateCard = async (name: string, title: string, email: string, number: string) => {
@@ -123,6 +144,8 @@ export const GenerateCard = async (name: string, title: string, email: string, n
 
   // Create PDF document
   const pdfDoc = await PDFDocument.create();
+
+
 
   // Font Loading
   pdfDoc.registerFontkit(fontkit)
@@ -140,23 +163,10 @@ export const GenerateCard = async (name: string, title: string, email: string, n
   //const arimoFont = await pdfDoc.embedFont(arimoFontBytes);
   //console.log('Arimo-Regular font embedded successfully: ', arimoFont);
 
+
+
   // Page Setup
-  const width = 3.5 * 72;  // 3.5 inches = 252 points
-  const height = 2 * 72;  // 2 inches = 144 points
   const page = pdfDoc.addPage([width, height]);
-
-  // Image Loading
-
-  // Logo Image
-  const pngImageBytes = await fetch(logo).then((res) => res.arrayBuffer())
-  const pngImage = await pdfDoc.embedPng(pngImageBytes)
-  const pngDims = pngImage.scale(0.09)
-
-  // Mail Image
-  const mailpngImageBytes = await fetch(mailicon).then((res) => res.arrayBuffer())
-  const mailpngImage = await pdfDoc.embedPng(mailpngImageBytes)
-  const mailpngDims = mailpngImage.scale(0.023)
-  
 
   // Page Drawing
   drawHeader(page, header, height - 20, fontBold, 12, HeaderColor);
@@ -164,13 +174,13 @@ export const GenerateCard = async (name: string, title: string, email: string, n
   page.drawText(`${title}`, { x: state.headerX, y: height - 55, size: 9, font: font, color: ContactInfoColor });
   page.drawText(`${email}`, { x: state.headerX, y: height -90, size: 9, font, color: ContactInfoColor });
   page.drawText(`${number}`, { x: state.headerX, y: height - 100, size: 9, font, color: ContactInfoColor });
-  drawPOBoxWithIcon(page, mailpngImage, mailpngDims, height, footnote1, 8, font, FootnoteColor);
-  divider(page, 190, height - 127.5)
-  drawCenteredText(page, footnote2, height - 135.5, font, 8, FootnoteColor);
-  drawLogo(page, pngImage, pngDims, height, logocaption, 8, font, LogoCaptionColor);
+  await drawLogo(page, pdfDoc, logo, logocaption, 8, font, LogoCaptionColor, height);
+  await drawFooter(page, pdfDoc, mailicon, footnote1, footnote2, 8, font, FootnoteColor, height);
 
   // Serialize the PDF to bytes
   const pdfBytes = await pdfDoc.save();
+
+
 
   // Trigger a download using the 'file-saver' library
   const blob = new Blob([pdfBytes], { type: 'application/pdf' });
