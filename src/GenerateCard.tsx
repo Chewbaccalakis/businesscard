@@ -2,6 +2,7 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { saveAs } from 'file-saver';  // Install file-saver for client-side file download
 import * as fontkit from '@pdf-lib/fontkit';
 import arimottf from '../public/assets/arimo/Arimo-Regular.ttf';
+//import { drawHeader } from './components/buildheader';
 
 const state = { headerX: 0, headerEndX: 0 };
 
@@ -32,6 +33,37 @@ const drawCenteredText = (page, text, y, font, size, color) => {
       color: rgb(0, 0, 0),             // Solid black color
     });
   };  
+
+  const drawPOBoxWithIcon = (page, pngImage, pngDims, height, text, size, font, color) => {
+    // Space between the icon and the P.O. Box text
+    const iconTextDistance = 3; // Adjust the spacing as required
+    
+    // Use the original vertical position for the P.O. Box text (no change in Y value)
+    const textY = height - 124;  // Keep this as is to match previous position
+    
+    // Center the P.O. Box text horizontally
+    const textWidth = font.widthOfTextAtSize(text, size);
+    const textX = (page.getWidth() - textWidth) / 2;
+  
+    // Draw the P.O. Box text
+    page.drawText(text, {
+      x: textX,
+      y: textY,
+      size: size,
+      font: font,
+      color: color,
+    });
+  
+    // Draw the icon just to the left of the P.O. Box text, vertically aligned with it
+    page.drawImage(
+      pngImage, { 
+        x: textX - pngDims.width - iconTextDistance,  // Position to the left of the text
+        y: textY - 2.5,                                     // Vertically center with text
+        width: pngDims.width,
+        height: pngDims.height,
+      });
+  };
+  
 
   const drawLogo = (page, pngImage, pngDims, height, text, size, font, color) => {
     // Log out the dimensions and values for debugging
@@ -111,6 +143,10 @@ export const GenerateCard = async (name: string, title: string, email: string, n
   const pngImage = await pdfDoc.embedPng(pngImageBytes)
   const pngDims = pngImage.scale(0.09)
 
+  const mailpngImageBytes = await fetch(`/assets/email.png`).then((res) => res.arrayBuffer())
+  const mailpngImage = await pdfDoc.embedPng(mailpngImageBytes)
+  const mailpngDims = mailpngImage.scale(0.023)
+
   // Draw text for business card details (adjust coordinates to fit design)
   const textWidth = font.widthOfTextAtSize(header, 12); // Get the header width
   const x = (width - textWidth) / 2;  // Center header horizontally
@@ -121,7 +157,7 @@ export const GenerateCard = async (name: string, title: string, email: string, n
   page.drawText(`${title}`, { x: state.headerX, y: height - 55, size: 9, font: font, color: lightblack });
   page.drawText(`${email}`, { x: state.headerX, y: height -90, size: 9, font, color: lightblack });
   page.drawText(`${number}`, { x: state.headerX, y: height - 100, size: 9, font, color: lightblack });
-  drawCenteredText(page, footnote1, height - 124, font, 8, lighterblack);
+  drawPOBoxWithIcon(page, mailpngImage, mailpngDims, height, footnote1, 8, font, lighterblack);
   divider(page, 190, height - 127.5)
   drawCenteredText(page, footnote2, height - 135.5, font, 8, lighterblack);
   drawLogo(page, pngImage, pngDims, height, `that others may live...`, 8, font, lighterblack);
