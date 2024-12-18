@@ -1,6 +1,5 @@
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import * as fontkit from '@pdf-lib/fontkit';
-import arimottf from '../../public/assets/arimo/Arimo-Regular.ttf';
+import { PDFDocument, rgb } from 'pdf-lib';
+import * as fontkit from '@btielen/pdf-lib-fontkit';
 
 // Configuration
 
@@ -25,7 +24,6 @@ const LogoCaptionColor = rgb(92 / 255, 92 / 255, 92 / 255);
 const FootnoteColor = rgb(92 / 255, 92 / 255, 92 / 255);
 
 //Fonts
-
 
 const state = { headerX: 0, headerEndX: 0 }; // state for sides of header
 
@@ -173,17 +171,21 @@ export const GenerateCard = async (name: string, title: string, email: string, n
   pdfDoc.registerFontkit(fontkit)
   console.log('Registered fontkit')
 
-  const font = await pdfDoc.embedStandardFont(StandardFonts.Helvetica);
-  const fontBold = await pdfDoc.embedStandardFont(StandardFonts.HelveticaBold); // For bold
-  console.log('Standard fonts embedded.');
-
-  const arimoFontBytes = await fetch(arimottf).then((res) => res.arrayBuffer());
-  console.log(arimoFontBytes)
+  const arimoFontBytes = await fetch('/assets/arimo/ArimoSubset.woff').then((res) => res.arrayBuffer());
   console.log('Arimo-Regular.ttf fetched successfully, bytes length:', arimoFontBytes.byteLength);
-  
-  console.log('Embedding font...');
-  //const arimoFont = await pdfDoc.embedFont(arimoFontBytes);
-  //console.log('Arimo-Regular font embedded successfully: ', arimoFont);
+  const arimoFont = await pdfDoc.embedFont(arimoFontBytes, { subset: true }); // Loading a subset of a subset of a font aparently works???
+  console.log('Arimo-Regular font embedded successfully: ', arimoFont);
+
+  const arimoBoldBytes = await fetch('/assets/arimo/ArimoBoldSubset.woff').then((res) => res.arrayBuffer());
+  console.log('Arimo-Bold.ttf fetched successfully, bytes length:', arimoBoldBytes.byteLength);
+  const arimoBold = await pdfDoc.embedFont(arimoBoldBytes, { subset: true });
+  console.log('Arimo-Bold font embedded successfully: ', arimoBold);
+
+  const arimoItalicBytes = await fetch('/assets/arimo/ArimoItalicSubset.woff').then((res) => res.arrayBuffer());
+  console.log('Arimo-Italic.ttf fetched successfully, bytes length:', arimoItalicBytes.byteLength);
+  const arimoItalic = await pdfDoc.embedFont(arimoItalicBytes, { subset: true });
+  console.log('Arimo-Italic font embedded successfully: ', arimoItalic);
+
 
 
 
@@ -191,16 +193,15 @@ export const GenerateCard = async (name: string, title: string, email: string, n
   const page = pdfDoc.addPage([width, height]);
 
   // Page Drawing
-  drawHeader(page, header, height - 20, fontBold, 12, HeaderColor);
-  page.drawText(`${name}`, { x: state.headerX, y: height - 45, size: 9, font: font, color: ContactInfoColor });
-  page.drawText(`${title}`, { x: state.headerX, y: height - 55, size: 9, font: font, color: ContactInfoColor });
-  page.drawText(`${email}`, { x: state.headerX, y: height -90, size: 9, font, color: ContactInfoColor });
-  page.drawText(`${number}`, { x: state.headerX, y: height - 100, size: 9, font, color: ContactInfoColor });
-  await drawLogo(page, pdfDoc, logo, logocaption, 8, font, LogoCaptionColor, height);
-  await drawFooter(page, pdfDoc, mailicon, footnote1, footnote2, 8, font, FootnoteColor, height);
+  drawHeader(page, header, height - 20, arimoBold, 12, HeaderColor);
+  page.drawText(`${name}`, { x: state.headerX, y: height - 45, size: 9, font: arimoFont, color: ContactInfoColor });
+  page.drawText(`${title}`, { x: state.headerX, y: height - 55, size: 9, font: arimoItalic, color: ContactInfoColor });
+  page.drawText(`${email}`, { x: state.headerX, y: height -90, size: 9, font: arimoItalic, color: ContactInfoColor });
+  page.drawText(`${number}`, { x: state.headerX, y: height - 100, size: 9, font: arimoItalic, color: ContactInfoColor });
+  await drawLogo(page, pdfDoc, logo, logocaption, 8, arimoItalic, LogoCaptionColor, height);
+  await drawFooter(page, pdfDoc, mailicon, footnote1, footnote2, 8, arimoFont, FootnoteColor, height);
 
   // Serialize PDF to bytes
   const pdfBytes = await pdfDoc.save();
-
   return(pdfBytes)
 };
