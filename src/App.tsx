@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent } from "react";
 import logo from "./assets/logo.png";
-import { GenerateCard } from "./GenerateCard";
+import { GenerateCard } from "./components/GenerateCard";
+import { CreateAvery5371Sheet } from './components/Avery5371';
 
 const BusinessCardGenerator: React.FC = () => {
   // State variables with appropriate types
@@ -18,6 +19,14 @@ const BusinessCardGenerator: React.FC = () => {
   const handleGenerate = () => {
     // Future logic to generate a business card goes here
     GenerateCard(name, title, email, number);
+  };
+
+  const handleGenerateSheet = async () => {
+    // Generate a card as a template
+    const cardBytes = await GenerateCard(name, title, email, number);
+    
+    // Pass the cardBytes to CreateAvery5371Sheet
+    await CreateAvery5371Sheet(cardBytes);
   };
 
   return (
@@ -76,6 +85,9 @@ const BusinessCardGenerator: React.FC = () => {
           </div>
           <button style={styles.button} onClick={handleGenerate}>
             Generate
+          </button>
+          <button style={styles.button} onClick={handleGenerateSheet}>
+            Generate Avery 5371 Sheet
           </button>
         </div>
 
