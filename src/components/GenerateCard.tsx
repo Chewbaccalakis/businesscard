@@ -1,4 +1,5 @@
 import { PDFDocument, rgb } from 'pdf-lib';
+// @ts-ignore
 import * as fontkit from '@btielen/pdf-lib-fontkit';
 
 // Configuration
