@@ -1,5 +1,6 @@
 import React, { useState, ChangeEvent } from "react";
 import logo from "./assets/logo.png";
+import { saveAs } from 'file-saver'; 
 import { GenerateCard } from "./components/GenerateCard";
 import { CreateAvery5371Sheet } from './components/Avery5371';
 
@@ -16,9 +17,12 @@ const BusinessCardGenerator: React.FC = () => {
       setter(e.target.value);
     };
 
-  const handleGenerate = () => {
-    // Future logic to generate a business card goes here
-    GenerateCard(name, title, email, number);
+  const handleGenerate = async () => {
+    const cardBytes = await GenerateCard(name, title, email, number);
+
+      // Trigger a download using'file-saver' library
+    const blob = new Blob([cardBytes], { type: 'application/pdf' });
+    saveAs(blob, 'BusinessCard.pdf');  // prompt user to download file
   };
 
   const handleGenerateSheet = async () => {
