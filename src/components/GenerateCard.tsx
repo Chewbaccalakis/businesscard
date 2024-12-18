@@ -1,5 +1,4 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import { saveAs } from 'file-saver'; 
 import * as fontkit from '@pdf-lib/fontkit';
 import arimottf from '../../public/assets/arimo/Arimo-Regular.ttf';
 
