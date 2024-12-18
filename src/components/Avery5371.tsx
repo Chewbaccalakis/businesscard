@@ -13,7 +13,7 @@ const rows = 5;
 
 // Configuration to adjust overall centering
 const config = {
-  xOffset: -1.5, // Horizontal offset for centering (positive shifts right, negative shifts left)
+  xOffset: -5, // Horizontal offset for centering (positive shifts right, negative shifts left)
   yOffset: 0, // Vertical offset for centering (positive shifts down, negative shifts up)
 };
 
