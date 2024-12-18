@@ -54,7 +54,7 @@ const drawHeader = (
   const drawLogo = async (
     page: any,
     pdfDoc: PDFDocument,
-    logo: string, // URL or path to the logo image
+    logo: string,
     text: string,
     size: number,
     font: any,
@@ -74,11 +74,11 @@ const drawHeader = (
         height: pngDims.height,
       });
 
-    // Calculate the width of the text and center it under the logo
+    // Calculate width of text and center it underlogo
     const textWidth = font.widthOfTextAtSize(text, size);
-    const textX = state.headerEndX - (textWidth / 2 + 27);  // Center the text under the logo by aligning it with the logo's center
+    const textX = state.headerEndX - (textWidth / 2 + 27);  // Center text under logo by aligning it with logo's center
 
-    // Place the text directly under the logo
+    // Place the text directly under logo
     const textY = height - 87;  // Adjust for correct space between image and text
     console.log('Text Position:', textX, textY);
 
@@ -108,15 +108,15 @@ const drawFooter = async (
   // Mail Icon Loading
   const mailImageBytes = await fetch(mailicon).then((res) => res.arrayBuffer());
   const mailImage = await pdfDoc.embedPng(mailImageBytes);
-  const mailDims = mailImage.scale(0.023); // Adjust the scaling as needed
+  const mailDims = mailImage.scale(0.023); // mail icon scaling
 
-  const iconTextDistance = 3; // Space between the icon and the P.O. Box text
+  const iconTextDistance = 3; // Space between icon and address text
 
-  // Use the original vertical position for the P.O. Box text
+  // vertical position for address/divider
   const footnote1Y = height - 124;
   const dividerY = height - 127.5;
 
-  // Center the P.O. Box text horizontally
+  // Center address
   const footnote1Width = font.widthOfTextAtSize(footnote1, size);
   const footnote1X = (page.getWidth() - footnote1Width) / 2;
 
@@ -129,20 +129,20 @@ const drawFooter = async (
     color,
   });
 
-  // Draw the icon just to the left of the P.O. Box text
+  // Draw icon
   page.drawImage(mailImage, {
-    x: footnote1X - mailDims.width - iconTextDistance, // Position to the left of the text
+    x: footnote1X - mailDims.width - iconTextDistance, // Position to left of text
     y: footnote1Y - 2.5, // Vertically center with text
     width: mailDims.width,
     height: mailDims.height,
   });
 
-  // Draw the divider line
+  // Draw divider line
   page.drawRectangle({
-    x: (page.getWidth() - 190) / 2, // Adjust the width (190) of the divider if needed
+    x: (page.getWidth() - 190) / 2, // width of divider
     y: dividerY,
-    width: 190, // Length of the line
-    height: 1, // Thickness of the line
+    width: 190, // Length of line
+    height: 1, // Thickness of line
     color,
   });
 
@@ -200,12 +200,12 @@ export const GenerateCard = async (name: string, title: string, email: string, n
   await drawLogo(page, pdfDoc, logo, logocaption, 8, font, LogoCaptionColor, height);
   await drawFooter(page, pdfDoc, mailicon, footnote1, footnote2, 8, font, FootnoteColor, height);
 
-  // Serialize the PDF to bytes
+  // Serialize PDF to bytes
   const pdfBytes = await pdfDoc.save();
 
 
 
-  // Trigger a download using the 'file-saver' library
+  // Trigger a download using'file-saver' library
   const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-  saveAs(blob, 'BusinessCard.pdf');  // This will prompt the user to download the file
+  saveAs(blob, 'BusinessCard.pdf');  // prompt user to download file
 };
