@@ -48,7 +48,14 @@ const icons = [
 
 const state = { headerX: 0, headerEndX: 0 }; // state for sides of header
 
-const HeaderText = (page, text, y, size, font, color) => {
+const HeaderText = (
+        page: any,
+        text: string,
+        y: number,
+        size: number,
+        font: any,
+        color: ReturnType<typeof rgb>
+    ) => {
     const textWidth = font.widthOfTextAtSize(text, size);
     const textX = (page.getWidth() - textWidth) / 2;
     state.headerX = textX;  // Set headerX to where the text starts
@@ -73,7 +80,15 @@ const HeaderText = (page, text, y, size, font, color) => {
       });
 }
 
-const EssentialsText = async (pdfDoc, page, startY, font, color, texts, subtexts, icons) => {
+const EssentialsText = async (
+    pdfDoc: any,
+    page: any,
+    startY: number,
+    font: any,
+    texts: any,
+    subtexts: any,
+    icons: any
+) => {
     const textX = state.headerX + 25;
     const ySpacing = 18; // Change this value to adjust spacing between lines
   
@@ -131,11 +146,10 @@ export const TenEssentials = async (name: string, title: string, email: string, 
 
   // Page Drawing
   HeaderText(page, `Always Carry the Ten Essentials`, 232, 9, font, rgb(0, 0, 0))
-  await EssentialsText(pdfDoc, page, 215, font, rgb(0, 0, 0), texts, subtexts, icons)
+  await EssentialsText(pdfDoc, page, 215, font, texts, subtexts, icons)
   page.drawText(`If lost or injured:`, { x: state.headerX, y: 30, size: 7, font: fontBold, color: rgb(0, 0, 0) })
   page.drawText(`• Call 911 as soon as possible`, { x: state.headerX + 5, y: 20, size: 7, font: font, color: rgb(32 / 255, 32 / 255, 32 / 255) })
   page.drawText(`• Stay put. Stay warm. Stay dry.`, { x: state.headerX + 5, y: 10, size: 7, font: font, color: rgb(32 / 255, 32 / 255, 32 / 255) })
-  console.log(state.headerX)
 
   // Serialize PDF to bytes
   const pdfBytes = await pdfDoc.save();
