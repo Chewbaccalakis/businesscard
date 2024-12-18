@@ -92,14 +92,14 @@ const EssentialsText = async (pdfDoc, page, startY, font, color, texts, subtexts
             y: currentY,
             size: 8.5,
             font,
-            color,
+            color: rgb(62 / 255, 62 / 255, 62 / 255),
         });
         page.drawText(currentsubText, {
             x: textX,
             y: currentY - 7.5,
             size: 7,
             font,
-            color,
+            color: rgb(92 / 255, 92 / 255, 92 / 255),
         });
         page.drawImage(iconImage, {
             x: state.headerX + 5, // Position to left of text
@@ -133,8 +133,8 @@ export const TenEssentials = async (name: string, title: string, email: string, 
   HeaderText(page, `Always Carry the Ten Essentials`, 232, 9, font, rgb(0, 0, 0))
   await EssentialsText(pdfDoc, page, 215, font, rgb(0, 0, 0), texts, subtexts, icons)
   page.drawText(`If lost or injured:`, { x: state.headerX, y: 30, size: 7, font: fontBold, color: rgb(0, 0, 0) })
-  page.drawText(`• Call 911 as soon as possible`, { x: state.headerX + 5, y: 20, size: 7, font: font, color: rgb(0, 0, 0) })
-  page.drawText(`• Stay put. Stay warm. Stay dry.`, { x: state.headerX + 5, y: 10, size: 7, font: font, color: rgb(0, 0, 0) })
+  page.drawText(`• Call 911 as soon as possible`, { x: state.headerX + 5, y: 20, size: 7, font: font, color: rgb(32 / 255, 32 / 255, 32 / 255) })
+  page.drawText(`• Stay put. Stay warm. Stay dry.`, { x: state.headerX + 5, y: 10, size: 7, font: font, color: rgb(32 / 255, 32 / 255, 32 / 255) })
   console.log(state.headerX)
 
   // Serialize PDF to bytes
