@@ -56,23 +56,6 @@ const BusinessCardGenerator: React.FC = () => {
       }
     };
 
-
-  const handleGenerate = async () => {
-    const cardBytes = await GenerateCard(name, title, email, number);
-
-      // Trigger a download using'file-saver' library
-    const blob = new Blob([cardBytes], { type: 'application/pdf' });
-    saveAs(blob, 'BusinessCard.pdf');  // prompt user to download file
-  };
-
-  const handleGenerateSheet = async () => {
-    // Generate a card as a template
-    const cardBytes = await GenerateCard(name, title, email, number);
-    
-    // Pass the cardBytes to CreateAvery5371Sheet
-    await CreateAvery5371Sheet(cardBytes);
-  };
-
   return (
     <div style={styles.container}>
       <div style={styles.header}>
