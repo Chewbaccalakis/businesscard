@@ -1,5 +1,5 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import { saveAs } from 'file-saver';  // Install file-saver for client-side file download
+import { saveAs } from 'file-saver'; 
 import * as fontkit from '@pdf-lib/fontkit';
 import arimottf from '../../public/assets/arimo/Arimo-Regular.ttf';
 
@@ -203,10 +203,5 @@ export const GenerateCard = async (name: string, title: string, email: string, n
   // Serialize PDF to bytes
   const pdfBytes = await pdfDoc.save();
 
-
-
-  // Trigger a download using'file-saver' library
-  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-  saveAs(blob, 'BusinessCard.pdf');  // prompt user to download file
   return(pdfBytes)
 };
