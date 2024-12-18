@@ -2,6 +2,7 @@ import React, { useState, ChangeEvent } from "react";
 import logo from "./assets/logo.png";
 import { saveAs } from 'file-saver'; 
 import { GenerateCard } from "./components/GenerateCard";
+import { TenEssentials} from "./components/TenEssentials";
 import { CreateAvery5371Sheet } from './components/Avery5371';
 
 const BusinessCardGenerator: React.FC = () => {
@@ -22,7 +23,7 @@ const BusinessCardGenerator: React.FC = () => {
     };
 
     const handlePreview = async () => {
-      const cardBytes = await GenerateCard(name, title, email, number);
+      const cardBytes = await TenEssentials(name, title, email, number);
     
       // Convert card bytes to Base64 string
       const base64Pdf = await toBase64(cardBytes);
