@@ -11,6 +11,8 @@ const BusinessCardGenerator: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [number, setNumber] = useState<string>("");
   const [previewPdf, setPreviewPdf] = useState<string>("");
+  const [templateType, setTemplateType] = useState<string>("template");
+
 
 
   const handleInputChange =
@@ -43,6 +45,16 @@ const BusinessCardGenerator: React.FC = () => {
       });
     };
     
+    const handleGenerateAction = async () => {
+      const cardBytes = await GenerateCard(name, title, email, number);
+    
+      if (templateType === "template") {
+        const blob = new Blob([cardBytes], { type: 'application/pdf' });
+        saveAs(blob, 'BusinessCard.pdf');
+      } else if (templateType === "avery5371") {
+        await CreateAvery5371Sheet(cardBytes);
+      }
+    };
 
 
   const handleGenerate = async () => {
@@ -74,70 +86,89 @@ const BusinessCardGenerator: React.FC = () => {
       </div>
 
       <div style={styles.content}>
-        <div style={styles.form}>
-          <div style={styles.field}>
-            <label htmlFor="name">Name:</label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={handleInputChange(setName)}
-              placeholder="Enter your name"
-            />
-          </div>
-          <div style={styles.field}>
-            <label htmlFor="title">Title:</label>
-            <input
-              id="title"
-              type="text"
-              value={title}
-              onChange={handleInputChange(setTitle)}
-              placeholder="Enter your title"
-            />
-          </div>
-          <div style={styles.field}>
-            <label htmlFor="email">Email:</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={handleInputChange(setEmail)}
-              placeholder="Enter your email"
-            />
-          </div>
-          <div style={styles.field}>
-            <label htmlFor="number">Number:</label>
-            <input
-              id="number"
-              type="tel"
-              value={number}
-              onChange={handleInputChange(setNumber)}
-              placeholder="Enter your number"
-            />
-          </div>
-          <button style={styles.button} onClick={handlePreview}>
-            Preview
-          </button>
-          <button style={styles.button} onClick={handleGenerate}>
-            Generate
-          </button>
-          <button style={styles.button} onClick={handleGenerateSheet}>
-            Generate Avery 5371 Sheet
-          </button>
-        </div>
+      <div style={styles.form}>
+  <div style={styles.field}>
+    <label htmlFor="name">Name:</label>
+    <input
+      id="name"
+      type="text"
+      value={name}
+      onChange={handleInputChange(setName)}
+      placeholder="Enter your name"
+    />
+  </div>
+  <div style={styles.field}>
+    <label htmlFor="title">Title:</label>
+    <input
+      id="title"
+      type="text"
+      value={title}
+      onChange={handleInputChange(setTitle)}
+      placeholder="Enter your title"
+    />
+  </div>
+  <div style={styles.field}>
+    <label htmlFor="email">Email:</label>
+    <input
+      id="email"
+      type="email"
+      value={email}
+      onChange={handleInputChange(setEmail)}
+      placeholder="Enter your email"
+    />
+  </div>
+  <div style={styles.field}>
+    <label htmlFor="number">Number:</label>
+    <input
+      id="number"
+      type="tel"
+      value={number}
+      onChange={handleInputChange(setNumber)}
+      placeholder="Enter your number"
+    />
+  </div>
+  
+  {/* Preview Button */}
+  <button style={styles.button} onClick={handlePreview}>
+    Preview
+  </button>
 
-        <div style={styles.preview}>
-          {previewPdf ? (
-            <iframe
-              src={previewPdf}
-              width="100%"
-              height="500px"
-              title="PDF Preview"
-            />
-          ) : (
-            <p>No preview available. Generate a card first.</p>
-          )}
-        </div>
+  {/* Dropdown and Generate Button on Same Row */}
+  <div style={styles.row}>
+    <div style={styles.rowItem}>
+      <label htmlFor="templateType">Template Type:</label>
+      <select
+        id="templateType"
+        value={templateType}
+        onChange={(e) => setTemplateType(e.target.value)}
+        style={{ width: "100%" }} // Makes the dropdown fill its container
+      >
+        <option value="template">Template</option>
+        <option value="avery5371">Avery 5371</option>
+      </select>
+    </div>
+    <div style={styles.rowItem}>
+      <button style={styles.button} onClick={handleGenerateAction}>
+        Generate
+      </button>
+    </div>
+  </div>
+
+</div>
+
+{/* Preview Section Remains on Right Side */}
+<div style={styles.preview}>
+  {previewPdf ? (
+    <iframe
+      src={previewPdf}
+      width="100%"
+      height="500px"
+      title="PDF Preview"
+    />
+  ) : (
+    <p>No preview available. Generate a card first.</p>
+  )}
+</div>
 
 
       </div>
@@ -153,16 +184,16 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: "center",
     justifyContent: "center",
     padding: "20px",
-    width: "100vw", // Ensure the container spans the full viewport width
-    height: "100vh", // Optional, if you want to take up the entire screen height
-    boxSizing: "border-box", // Prevent padding/margin overflow
-    overflow: "hidden", // Fix any unexpected content overflow
+    width: "100vw",
+    height: "100vh",
+    boxSizing: "border-box",
+    overflowY: "auto", // Ensures the page is scrollable without jumping
   },
   header: {
     textAlign: "center",
-    marginTop: "-250px",
+    marginTop: "120px",
     marginBottom: "30px",
-    width: "100%", // Ensure the header spans full width
+    width: "100%",
   },
   logo: {
     width: "200px",
@@ -179,35 +210,39 @@ const styles: { [key: string]: React.CSSProperties } = {
   content: {
     display: "flex",
     flexWrap: "wrap",
-    width: "100%", // Ensure it uses the full width of the container
-    maxWidth: "1200px", // Optional: Cap width for aesthetic reasons
-    justifyContent: "space-between", // Distribute child elements
-    alignItems: "flex-start", // Align items at the top
-    boxSizing: "border-box", // Prevent extra padding shrinkage
+    width: "100%",
+    maxWidth: "1200px",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    boxSizing: "border-box",
   },
-  
   form: {
-    flex: "1 1 45%", // Ensure it takes up 45% of the container but can shrink/grow
+    flex: "1 1 45%",
     padding: "20px",
     borderRight: "1px solid #ccc",
     display: "flex",
     flexDirection: "column",
     gap: "15px",
-    boxSizing: "border-box", // Include padding in width calculation
+    boxSizing: "border-box",
   },
   field: {
     display: "flex",
     flexDirection: "column",
   },
-  input: {
-    padding: "10px",
-    fontSize: "16px",
-    marginTop: "5px",
-    border: "1px solid #ccc",
-    borderRadius: "5px",
+  preview: {
+    flex: "1 1 45%",
+    padding: "1px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    borderLeft: "1px solid #ccc",
+    backgroundColor: "#f5f5f5",
+    height: "500px",  // Ensure consistent height
+    overflowY: "auto", // Allows for scrolling within preview if necessary
+    boxSizing: "border-box",
   },
+  // Button styling
   button: {
-    marginTop: "20px",
     padding: "10px",
     backgroundColor: "#4CAF50",
     color: "white",
@@ -216,15 +251,23 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: "5px",
     cursor: "pointer",
   },
-  preview: {
-    flex: "1 1 45%", // Ensure it takes up 45% of the container but can shrink/grow
-    padding: "20px",
+  row: {
     display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    borderLeft: "1px solid #ccc",
-    backgroundColor: "#f5f5f5",
-    boxSizing: "border-box", // Include padding in width calculation
+    gap: "15px",
+    marginTop: "20px",
+    width: "100%",
+    justifyContent: "space-between",
+  },
+  rowItem: {
+    flex: "1 1 48%",
+    minWidth: "140px",
+  },
+  input: {
+    padding: "10px",
+    fontSize: "16px",
+    marginTop: "5px",
+    border: "1px solid #ccc",
+    borderRadius: "5px",
   },
 };
 
