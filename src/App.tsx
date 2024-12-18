@@ -10,12 +10,40 @@ const BusinessCardGenerator: React.FC = () => {
   const [title, setTitle] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [number, setNumber] = useState<string>("");
+  const [previewPdf, setPreviewPdf] = useState<string>("");
+
 
   const handleInputChange =
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
     (e: ChangeEvent<HTMLInputElement>) => {
       setter(e.target.value);
     };
+
+    const handlePreview = async () => {
+      const cardBytes = await GenerateCard(name, title, email, number);
+    
+      // Convert card bytes to Base64 string
+      const base64Pdf = await toBase64(cardBytes);
+    
+      // Embed Base64 as data URL (including prefix)
+      const previewUrl = `data:application/pdf;base64,${base64Pdf}`;
+      setPreviewPdf(previewUrl); // Update preview with the generated PDF
+    };
+    
+    const toBase64 = (pdfBytes: Uint8Array): Promise<string> => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          // Reader result should give base64 without the "data:" part
+          const base64Content = reader.result as string;
+          const base64Only = base64Content.split(',')[1]; 
+          resolve(base64Only);
+        };
+        reader.readAsDataURL(new Blob([pdfBytes]));
+      });
+    };
+    
+
 
   const handleGenerate = async () => {
     const cardBytes = await GenerateCard(name, title, email, number);
@@ -87,6 +115,9 @@ const BusinessCardGenerator: React.FC = () => {
               placeholder="Enter your number"
             />
           </div>
+          <button style={styles.button} onClick={handlePreview}>
+            Preview
+          </button>
           <button style={styles.button} onClick={handleGenerate}>
             Generate
           </button>
@@ -96,8 +127,19 @@ const BusinessCardGenerator: React.FC = () => {
         </div>
 
         <div style={styles.preview}>
-          {/* Preview layout will be here */}
+          {previewPdf ? (
+            <iframe
+              src={previewPdf}
+              width="100%"
+              height="500px"
+              title="PDF Preview"
+            />
+          ) : (
+            <p>No preview available. Generate a card first.</p>
+          )}
         </div>
+
+
       </div>
     </div>
   );
