@@ -66,6 +66,7 @@ const drawHeader = (
   }
 
   const drawInfo = async (
+    pdfDoc: any,
     page: any,
     info: any,
     font: any,
@@ -76,7 +77,7 @@ const drawHeader = (
     let infoX;
 
     if (cardType === 'generic') {
-      infoX = state.headerX + 10
+      infoX = state.headerX + 13
     } else {
       infoX = state.headerX
     }
@@ -92,11 +93,21 @@ const drawHeader = (
         size: 9,
         font: font,
         color: ContactInfoColor,
-    });
+    })
       if (cardType === 'generic') {
-        
+        const infoImageBytes = await fetch('/assets/email.png').then((res) => res.arrayBuffer())
+        const infoImage = await pdfDoc.embedPng(infoImageBytes)
+        const infoDims = infoImage.scale(0.02)
+
+        page.drawImage(
+          infoImage, {
+            x: state.headerX,
+            y: currentY - 12,
+            width: infoDims.width,
+            height: infoDims.height,
+        });
       }
-    }
+    };
   }
 
   // Draw Logo Function
@@ -246,7 +257,7 @@ export const GenerateCard = async (name: string, cardType: string, Line1: string
   // Page Drawing
   drawHeader(page, header, height - 20, arimoBold, 12, HeaderColor);
   drawName(page, `${name}`, arimoFont, height)
-  drawInfo(page, InfoLines, arimoItalic, height, cardType)
+  await drawInfo(pdfDoc, page, InfoLines, arimoItalic, height, cardType)
   await drawLogo(page, pdfDoc, logo, logocaption, 8, arimoItalic, LogoCaptionColor, height);
   await drawFooter(page, pdfDoc, mailicon, footnote1, footnote2, 8, arimoFont, FootnoteColor, height);
 
