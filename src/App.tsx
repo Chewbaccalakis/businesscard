@@ -17,11 +17,11 @@ const BusinessCardGenerator: React.FC = () => {
   const [Line6, setLine6] = useState<string>("");
   const [previewPdf, setPreviewPdf] = useState<string>("");
   const [templateType, setTemplateType] = useState<string>("null");
-  const [cardType, setCardType] = useState<string>("null");
+  const [cardType, setCardType] = useState<string>("custom");
   const [backside, setBackSide] = useState<string>("none")
 
 
-  const GenericCard = async (setName, setLine1, setLine2, setLine3, setLine4, setLine5, setLine6) => {
+  const GenericCard = async (setName: any, setLine1: any, setLine2: any, setLine3: any, setLine4: any, setLine5: any, setLine6: any, setCardType: any) => {
     const data = await GenericFront();  // Get data from the external function
   
     // Directly set the state with returned values
@@ -32,6 +32,8 @@ const BusinessCardGenerator: React.FC = () => {
     setLine4(data.Line4);
     setLine5(data.Line5);
     setLine6(data.Line6);
+
+    setCardType("generic");
   };
 
   const nonebuttonstyle = backside === "none" 
@@ -50,6 +52,7 @@ const BusinessCardGenerator: React.FC = () => {
 
     const generateCardBytes = async (
       name: string,
+      cardType: string,
       Line1: string,
       Line2: string,
       Line3: string,
@@ -59,7 +62,7 @@ const BusinessCardGenerator: React.FC = () => {
       backside: string
     ): Promise<Uint8Array> => {
       // Generate the frontside PDF
-      const frontside = await GenerateCard(name, Line1, Line2, Line3, Line4, Line5, Line6);
+      const frontside = await GenerateCard(name, cardType, Line1, Line2, Line3, Line4, Line5, Line6);
     
       // Add backside if required
       let cardBytes: Uint8Array = frontside;
@@ -73,7 +76,7 @@ const BusinessCardGenerator: React.FC = () => {
     
 
     const handlePreview = async () => {
-      const cardBytes = await generateCardBytes(name, Line1, Line2, Line3, Line4, Line5, Line6, backside);
+      const cardBytes = await generateCardBytes(name, cardType, Line1, Line2, Line3, Line4, Line5, Line6, backside);
       
       // Convert the PDF to base64
       const base64Pdf = await toBase64(cardBytes);
@@ -103,7 +106,7 @@ const BusinessCardGenerator: React.FC = () => {
         return; // Exit the function to prevent further code from running
       }
 
-      const cardBytes = await generateCardBytes(name, Line1, Line2, Line3, Line4, Line5, Line6, backside);
+      const cardBytes = await generateCardBytes(name, cardType, Line1, Line2, Line3, Line4, Line5, Line6, backside);
       
       // Handle the template type
       if (templateType === "template") {
@@ -193,7 +196,7 @@ const BusinessCardGenerator: React.FC = () => {
     Preview
   </button>
 
-  <button style={styles.button} onClick={() => GenericCard(setName, setLine1, setLine2, setLine3, setLine4, setLine5, setLine6)}>
+  <button style={styles.button} onClick={() => GenericCard(setName, setLine1, setLine2, setLine3, setLine4, setLine5, setLine6, setCardType)}>
   Generic
   </button>
 

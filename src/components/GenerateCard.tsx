@@ -69,20 +69,33 @@ const drawHeader = (
     page: any,
     info: any,
     font: any,
-    height: number
+    height: number,
+    cardType: string
   ) => {
+
+    let infoX;
+
+    if (cardType === 'generic') {
+      infoX = state.headerX + 10
+    } else {
+      infoX = state.headerX
+    }
+    
     for (let i = 0; i < info.length; i++) {
       const startY = height - 55;
       const ySpacing = 10;
       const currentY = startY - i * ySpacing;  // Adjust y for each line
       const currentText = info[i];  // Get the text for this line
       page.drawText(currentText, {
-        x: state.headerX,
+        x: infoX,
         y: currentY,
         size: 9,
         font: font,
         color: ContactInfoColor,
     });
+      if (cardType === 'generic') {
+        
+      }
     }
   }
 
@@ -197,7 +210,7 @@ const drawFooter = async (
 
   
 
-export const GenerateCard = async (name: string, Line1: string, Line2: string, Line3: string, Line4: string, Line5: string, Line6: string) => {
+export const GenerateCard = async (name: string, cardType: string, Line1: string, Line2: string, Line3: string, Line4: string, Line5: string, Line6: string) => {
 
   const InfoLines = [
     `${Line1}`,
@@ -233,7 +246,7 @@ export const GenerateCard = async (name: string, Line1: string, Line2: string, L
   // Page Drawing
   drawHeader(page, header, height - 20, arimoBold, 12, HeaderColor);
   drawName(page, `${name}`, arimoFont, height)
-  drawInfo(page, InfoLines, arimoItalic, height)
+  drawInfo(page, InfoLines, arimoItalic, height, cardType)
   await drawLogo(page, pdfDoc, logo, logocaption, 8, arimoItalic, LogoCaptionColor, height);
   await drawFooter(page, pdfDoc, mailicon, footnote1, footnote2, 8, arimoFont, FootnoteColor, height);
 
