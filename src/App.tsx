@@ -17,6 +17,7 @@ const BusinessCardGenerator: React.FC = () => {
   const [Line6, setLine6] = useState<string>("");
   const [previewPdf, setPreviewPdf] = useState<string>("");
   const [templateType, setTemplateType] = useState<string>("null");
+  const [cardType, setCardType] = useState<string>("null");
   const [backside, setBackSide] = useState<string>("none")
 
 
