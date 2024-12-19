@@ -20,6 +20,7 @@ const footnote2 = `100% Volunteer • Registered 501(c)(3) Non-Profit`;
 
 // Text Colors
 const HeaderColor = rgb(0, 0, 0);
+const NameColor = rgb(92 / 255, 92 / 255, 92 / 255);
 const ContactInfoColor = rgb(92 / 255, 92 / 255, 92 / 255);
 const LogoCaptionColor = rgb(92 / 255, 92 / 255, 92 / 255);
 const FootnoteColor = rgb(92 / 255, 92 / 255, 92 / 255);
@@ -29,7 +30,6 @@ const FootnoteColor = rgb(92 / 255, 92 / 255, 92 / 255);
 //
 
 const state = { headerX: 0, headerEndX: 0 }; // state for sides of header
-
 
 // Draw Header Function
 const drawHeader = (
@@ -42,12 +42,49 @@ const drawHeader = (
   ) => {
     const textWidth = font.widthOfTextAtSize(text, size);
     const pageWidth = page.getWidth();
-    state.headerX = (pageWidth - textWidth) / 2;
+    state.headerX = (pageWidth - textWidth) / 2 - 7;
     state.headerEndX = state.headerX + textWidth;
   
     page.drawText(text, { x: state.headerX, y, size, font, color });
 
   };
+
+  const drawName = async (
+    page: any,
+    name: string,
+    font: any,
+    height: number
+  ) => {
+    page.drawText(
+      name, {
+      x: state.headerX,
+      y: height - 45,
+      size: 9,
+      font: font,
+      color: NameColor
+    });
+  }
+
+  const drawInfo = async (
+    page: any,
+    info: any,
+    font: any,
+    height: number
+  ) => {
+    for (let i = 0; i < info.length; i++) {
+      const startY = height - 55;
+      const ySpacing = 10;
+      const currentY = startY - i * ySpacing;  // Adjust y for each line
+      const currentText = info[i];  // Get the text for this line
+      page.drawText(currentText, {
+        x: state.headerX,
+        y: currentY,
+        size: 9,
+        font: font,
+        color: ContactInfoColor,
+    });
+    }
+  }
 
   // Draw Logo Function
   const drawLogo = async (
@@ -60,11 +97,12 @@ const drawHeader = (
     color: ReturnType<typeof rgb>,
     height: number
   ) => {
+    // Logo Image Loading
     const pngImageBytes = await fetch(logo).then((res) => res.arrayBuffer())
     const pngImage = await pdfDoc.embedPng(pngImageBytes)
     const pngDims = pngImage.scale(0.09)
     
-    // Draw the logo
+    // Draw logo
     page.drawImage(
       pngImage, { 
         x: state.headerEndX - pngDims.width + 7.5,
@@ -79,7 +117,6 @@ const drawHeader = (
 
     // Place the text directly under logo
     const textY = height - 87;  // Adjust for correct space between image and text
-    console.log('Text Position:', textX, textY);
 
     // Draw the text centered underneath the logo
     page.drawText(text, {
@@ -104,22 +141,25 @@ const drawFooter = async (
   color: ReturnType<typeof rgb>,
   height: number
 ) => {
+
   // Mail Icon Loading
   const mailImageBytes = await fetch(mailicon).then((res) => res.arrayBuffer());
   const mailImage = await pdfDoc.embedPng(mailImageBytes);
   const mailDims = mailImage.scale(0.023); // mail icon scaling
 
-  const iconTextDistance = 3; // Space between icon and address text
-
-  // vertical position for address/divider
+  // vertical positions
   const footnote1Y = height - 124;
-  const dividerY = height - 127.5;
+  const dividerY = footnote1Y - 3.5;
+  const footnote2Y = dividerY - 8;
 
-  // Center address
+  // horizontal positions
   const footnote1Width = font.widthOfTextAtSize(footnote1, size);
   const footnote1X = (page.getWidth() - footnote1Width) / 2;
+  const iconTextDistance = 3; // Space between icon and Footnote 1
+  const footnote2Width = font.widthOfTextAtSize(footnote2, size);
+  const footnote2X = (page.getWidth() - footnote2Width) / 2;
 
-  // Draw the P.O. Box text
+  // Footnote 1
   page.drawText(footnote1, {
     x: footnote1X,
     y: footnote1Y,
@@ -128,7 +168,7 @@ const drawFooter = async (
     color,
   });
 
-  // Draw icon
+  // Footnote 1 Icon
   page.drawImage(mailImage, {
     x: footnote1X - mailDims.width - iconTextDistance, // Position to left of text
     y: footnote1Y - 2.5, // Vertically center with text
@@ -136,7 +176,7 @@ const drawFooter = async (
     height: mailDims.height,
   });
 
-  // Draw divider line
+  // Divider
   page.drawRectangle({
     x: (page.getWidth() - 190) / 2, // width of divider
     y: dividerY,
@@ -145,11 +185,7 @@ const drawFooter = async (
     color,
   });
 
-  // Center Footnote 2 text
-  const footnote2Width = font.widthOfTextAtSize(footnote2, size);
-  const footnote2X = (page.getWidth() - footnote2Width) / 2;
-  const footnote2Y = height - 135.5;
-
+  // Footnote 2
   page.drawText(footnote2, {
     x: footnote2X,
     y: footnote2Y,
@@ -162,6 +198,15 @@ const drawFooter = async (
   
 
 export const GenerateCard = async (name: string, title: string, email: string, number: string) => {
+
+  const InfoLines = [
+    `${title}`,
+    '',
+    '',
+    `${email}`,
+    `${number}`,
+    '',
+  ];
 
   // Create PDF document
   const pdfDoc = await PDFDocument.create();
@@ -187,10 +232,8 @@ export const GenerateCard = async (name: string, title: string, email: string, n
 
   // Page Drawing
   drawHeader(page, header, height - 20, arimoBold, 12, HeaderColor);
-  page.drawText(`${name}`, { x: state.headerX, y: height - 45, size: 9, font: arimoFont, color: ContactInfoColor });
-  page.drawText(`${title}`, { x: state.headerX, y: height - 55, size: 9, font: arimoItalic, color: ContactInfoColor });
-  page.drawText(`${email}`, { x: state.headerX, y: height -90, size: 9, font: arimoItalic, color: ContactInfoColor });
-  page.drawText(`${number}`, { x: state.headerX, y: height - 100, size: 9, font: arimoItalic, color: ContactInfoColor });
+  drawName(page, `${name}`, arimoFont, height)
+  drawInfo(page, InfoLines, arimoItalic, height)
   await drawLogo(page, pdfDoc, logo, logocaption, 8, arimoItalic, LogoCaptionColor, height);
   await drawFooter(page, pdfDoc, mailicon, footnote1, footnote2, 8, arimoFont, FootnoteColor, height);
 
