@@ -1,4 +1,4 @@
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { PDFDocument, rgb, StandardFonts, degrees } from 'pdf-lib';
 
 // Configuration
 
@@ -150,6 +150,27 @@ export const TenEssentials = async (name: string, title: string, email: string, 
   page.drawText(`If lost or injured:`, { x: state.headerX, y: 30, size: 7, font: fontBold, color: rgb(0, 0, 0) })
   page.drawText(`• Call 911 as soon as possible`, { x: state.headerX + 5, y: 20, size: 7, font: font, color: rgb(32 / 255, 32 / 255, 32 / 255) })
   page.drawText(`• Stay put. Stay warm. Stay dry.`, { x: state.headerX + 5, y: 10, size: 7, font: font, color: rgb(32 / 255, 32 / 255, 32 / 255) })
+
+  // Embed the original page
+  const embeddedPage = await pdfDoc.embedPage(page);
+
+  // Retrieve dimensions
+  const { width: originalWidth, height: originalHeight } = embeddedPage;
+
+  // Create a new rotated page
+  const rotatedPage = pdfDoc.addPage([height, width]);
+
+  // Draw the embedded page manually to correct positioning
+  rotatedPage.drawPage(embeddedPage, {
+    x: 0 + originalHeight,
+    y: 0,
+    width: originalWidth, // Height becomes the new width
+    height: originalHeight, // Width becomes the new height
+    rotate: degrees(90),
+  });
+
+  // Remove the original page since it has been rotated
+  pdfDoc.removePage(0);
 
   // Serialize PDF to bytes
   const pdfBytes = await pdfDoc.save();
