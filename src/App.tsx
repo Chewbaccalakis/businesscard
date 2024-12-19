@@ -12,16 +12,16 @@ const BusinessCardGenerator: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [number, setNumber] = useState<string>("");
   const [previewPdf, setPreviewPdf] = useState<string>("");
-  const [templateType, setTemplateType] = useState<string>("template");
+  const [templateType, setTemplateType] = useState<string>("null");
   const [backside, setBackSide] = useState<string>("none")
 
 
   const nonebuttonstyle = backside === "none" 
-  ? { backgroundColor: "blue", ...styles.backbutton } 
+  ? { backgroundColor: "orange", ...styles.backbutton } 
   : { backgroundColor: "gray", ...styles.backbutton };
 
   const essentialsButtonStyle = backside === "essentials" 
-  ? { backgroundColor: "blue", ...styles.backbutton } 
+  ? { backgroundColor: "orange", ...styles.backbutton } 
   : { backgroundColor: "gray", ...styles.backbutton };
 
   const handleInputChange =
@@ -77,6 +77,11 @@ const BusinessCardGenerator: React.FC = () => {
     };
     
     const handleGenerateAction = async () => {
+      if (templateType === "null") {
+        alert("Please select a template type.");
+        return; // Exit the function to prevent further code from running
+      }
+
       const cardBytes = await generateCardBytes(name, title, email, number, backside);
       
       // Handle the template type
@@ -167,22 +172,21 @@ const BusinessCardGenerator: React.FC = () => {
     Preview
   </button>
 
-  {/* Dropdown and Generate Button on Same Row */}
   <div style={styles.row}>
     <div style={styles.rowItem}>
-      <label htmlFor="templateType">Template Type:</label>
       <select
         id="templateType"
         value={templateType}
         onChange={(e) => setTemplateType(e.target.value)}
-        style={{ width: "100%" }} // Makes the dropdown fill its container
+        style={{ width: "100%", height: "100%"}} // Makes the dropdown fill its container
       >
-        <option value="template">Template</option>
+        <option value="null">Select a Template...</option>
+        <option value="template">2.5" x 3"</option>
         <option value="avery5371">Avery 5371</option>
       </select>
     </div>
     <div style={styles.rowItem}>
-      <button style={styles.button} onClick={handleGenerateAction}>
+      <button style={{ width: "100%", ...styles.button }} onClick={handleGenerateAction}>
         Generate
       </button>
     </div>
