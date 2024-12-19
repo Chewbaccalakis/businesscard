@@ -196,10 +196,6 @@ const BusinessCardGenerator: React.FC = () => {
     Preview
   </button>
 
-  <button style={styles.button} onClick={() => GenericCard(setName, setLine1, setLine2, setLine3, setLine4, setLine5, setLine6, setCardType)}>
-  Generic
-  </button>
-
   <div style={styles.row}>
     <div style={styles.rowItem}>
       <select
@@ -218,6 +214,16 @@ const BusinessCardGenerator: React.FC = () => {
         Generate
       </button>
     </div>
+  </div>
+  <div style={styles.row}>
+    <div style={styles.rowItem}>
+      <button style={{width: "100%", ...styles.button}} onClick={() => GenericCard(setName, setLine1, setLine2, setLine3, setLine4, setLine5, setLine6, setCardType)}>
+      Generic Card
+      </button>
+    </div>
+    <div style={styles.rowItem}></div>
+    <div style={styles.rowItem}></div>
+    <div style={styles.rowItem}></div>
   </div>
 
 </div>
