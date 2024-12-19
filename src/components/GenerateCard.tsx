@@ -197,15 +197,15 @@ const drawFooter = async (
 
   
 
-export const GenerateCard = async (name: string, title: string, email: string, number: string) => {
+export const GenerateCard = async (name: string, Line1: string, Line2: string, Line3: string, Line4: string, Line5: string, Line6: string) => {
 
   const InfoLines = [
-    `${title}`,
-    '',
-    '',
-    `${email}`,
-    `${number}`,
-    '',
+    `${Line1}`,
+    `${Line2}`,
+    `${Line3}`,
+    `${Line4}`,
+    `${Line5}`,
+    `${Line6}`,
   ];
 
   // Create PDF document

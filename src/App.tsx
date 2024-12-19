@@ -8,9 +8,12 @@ import { AddBackside } from './components/AddBackside';
 const BusinessCardGenerator: React.FC = () => {
   // State variables with appropriate types
   const [name, setName] = useState<string>("");
-  const [title, setTitle] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [number, setNumber] = useState<string>("");
+  const [Line1, setLine1] = useState<string>("");
+  const [Line2, setLine2] = useState<string>("");
+  const [Line3, setLine3] = useState<string>("");
+  const [Line4, setLine4] = useState<string>("");
+  const [Line5, setLine5] = useState<string>("");
+  const [Line6, setLine6] = useState<string>("");
   const [previewPdf, setPreviewPdf] = useState<string>("");
   const [templateType, setTemplateType] = useState<string>("null");
   const [backside, setBackSide] = useState<string>("none")
@@ -32,13 +35,16 @@ const BusinessCardGenerator: React.FC = () => {
 
     const generateCardBytes = async (
       name: string,
-      title: string,
-      email: string,
-      number: string,
+      Line1: string,
+      Line2: string,
+      Line3: string,
+      Line4: string,
+      Line5: string,
+      Line6: string,
       backside: string
     ): Promise<Uint8Array> => {
       // Generate the frontside PDF
-      const frontside = await GenerateCard(name, title, email, number);
+      const frontside = await GenerateCard(name, Line1, Line2, Line3, Line4, Line5, Line6);
     
       // Add backside if required
       let cardBytes: Uint8Array = frontside;
@@ -52,7 +58,7 @@ const BusinessCardGenerator: React.FC = () => {
     
 
     const handlePreview = async () => {
-      const cardBytes = await generateCardBytes(name, title, email, number, backside);
+      const cardBytes = await generateCardBytes(name, Line1, Line2, Line3, Line4, Line5, Line6, backside);
       
       // Convert the PDF to base64
       const base64Pdf = await toBase64(cardBytes);
@@ -82,7 +88,7 @@ const BusinessCardGenerator: React.FC = () => {
         return; // Exit the function to prevent further code from running
       }
 
-      const cardBytes = await generateCardBytes(name, title, email, number, backside);
+      const cardBytes = await generateCardBytes(name, Line1, Line2, Line3, Line4, Line5, Line6, backside);
       
       // Handle the template type
       if (templateType === "template") {
@@ -124,8 +130,8 @@ const BusinessCardGenerator: React.FC = () => {
     <input
       id="title"
       type="text"
-      value={title}
-      onChange={handleInputChange(setTitle)}
+      value={Line1}
+      onChange={handleInputChange(setLine1)}
       placeholder="Enter your title"
     />
   </div>
@@ -134,8 +140,8 @@ const BusinessCardGenerator: React.FC = () => {
     <input
       id="email"
       type="email"
-      value={email}
-      onChange={handleInputChange(setEmail)}
+      value={Line4}
+      onChange={handleInputChange(setLine4)}
       placeholder="Enter your email"
     />
   </div>
@@ -144,8 +150,8 @@ const BusinessCardGenerator: React.FC = () => {
     <input
       id="number"
       type="tel"
-      value={number}
-      onChange={handleInputChange(setNumber)}
+      value={Line5}
+      onChange={handleInputChange(setLine5)}
       placeholder="Enter your number"
     />
   </div>
