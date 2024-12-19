@@ -17,35 +17,53 @@ const config = {
   yOffset: 0, // Vertical offset for centering (positive shifts down, negative shifts up)
 };
 
-export const CreateAvery5371Sheet = async (cardBytes: Uint8Array) => {
-  // Load the single card PDF
-  const cardPdf = await PDFDocument.load(cardBytes);
-  const [cardPage] = await cardPdf.getPages();
-
-  // Create a new document for the Avery 5371 sheet
-  const sheetPdf = await PDFDocument.create();
+// Function to generate sheet with proper card positioning for front and back cards
+const generateSheetForCards = async (sheetPdf: PDFDocument, cardPdf: PDFDocument, cardPage: number) => {
+  // Create a new page in the Avery 5371 sheet for each card (front or back)
   const sheetPage = sheetPdf.addPage([pageWidth, pageHeight]);
 
-  // Embed the card PDF into the sheet
-  const cardEmbed = await sheetPdf.embedPage(cardPage);
-  const cardScaledWidth = cardWidth;
-  const cardScaledHeight = cardHeight;
-
-  // Calculate the total width and height of the grid
-  const totalWidth = columns * cardWidth;
-  const totalHeight = rows * cardHeight;
+  // Embed the specific page (front or back) from the provided PDF into the sheet
+  const pageToEmbed = await cardPdf.getPages();
+  const cardEmbed = await sheetPdf.embedPage(pageToEmbed[cardPage]);
 
   // Calculate the offset to center the grid on the page
+  const totalWidth = columns * cardWidth;
+  const totalHeight = rows * cardHeight;
   const xOffset = (pageWidth - totalWidth - 2 * marginX) / 2 + config.xOffset;
   const yOffset = (pageHeight - totalHeight - 2 * marginY) / 2 + config.yOffset;
 
-  // Place cards in a grid with the center-adjusted position
+  let currentCardIndex = 0;
+  // Loop to place all cards in the grid (for the specified page)
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {
       const x = marginX + column * cardWidth + xOffset;
       const y = pageHeight - marginY - cardHeight - row * cardHeight + yOffset;
-      sheetPage.drawPage(cardEmbed, { x, y, width: cardScaledWidth, height: cardScaledHeight });
+
+      if (currentCardIndex < columns * rows) {
+        sheetPage.drawPage(cardEmbed, { x, y, width: cardWidth, height: cardHeight }); // Add the current page to the sheet
+        currentCardIndex++;
+      }
     }
+  }
+};
+
+// Function to create the Avery 5371 Sheet
+export const CreateAvery5371Sheet = async (cardBytes: Uint8Array) => {
+  // Load the card PDF
+  const cardPdf = await PDFDocument.load(cardBytes);
+
+  // Create a new document for the Avery 5371 sheet
+  const sheetPdf = await PDFDocument.create();
+
+  // Get number of pages in the input card PDF (front/back)
+  const numberOfPages = cardPdf.getPages().length;
+
+  // Generate Avery sheet for the front cards
+  await generateSheetForCards(sheetPdf, cardPdf, 0);  // Always use the front card for the first sheet
+
+  // If there are more pages (back side), generate a sheet for the back side as well
+  if (numberOfPages > 1) {
+    await generateSheetForCards(sheetPdf, cardPdf, 1);  // Use the second page (back card) for the second sheet
   }
 
   // Serialize the sheet PDF
