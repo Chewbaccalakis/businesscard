@@ -90,7 +90,7 @@ const BusinessCardGenerator: React.FC = () => {
     Line4: string,
     Line5: string,
     Line6: string,
-    backside: string
+    backside: any
   ): Promise<Uint8Array> => {
     // Generate the frontside PDF
     const frontside = await GenerateCard(name, cardType, Line1, Line2, Line3, Line4, Line5, Line6);
