@@ -126,20 +126,14 @@ const EssentialsText = async (
 };
 
 
-export const TenEssentials = async (name: string, title: string, email: string, number: string) => {
-  console.log({ name, title, email, number });
+export const TenEssentials = async (): Promise<Uint8Array> => {
 
   // Create PDF document
   const pdfDoc = await PDFDocument.create();
 
-
-
   // Font Loading
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-
-
-
 
   // Page Setup
   const page = pdfDoc.addPage([width, height]);

@@ -2,8 +2,8 @@ import React, { useState, ChangeEvent } from "react";
 import logo from "./assets/logo.png";
 import { saveAs } from 'file-saver'; 
 import { GenerateCard } from "./components/GenerateCard";
-import { TenEssentials} from "./components/TenEssentials";
 import { CreateAvery5371Sheet } from './components/Avery5371';
+import { AddBackside } from './components/AddBackside';
 
 const BusinessCardGenerator: React.FC = () => {
   // State variables with appropriate types
@@ -13,8 +13,16 @@ const BusinessCardGenerator: React.FC = () => {
   const [number, setNumber] = useState<string>("");
   const [previewPdf, setPreviewPdf] = useState<string>("");
   const [templateType, setTemplateType] = useState<string>("template");
+  const [backside, setBackSide] = useState<string>("none")
 
 
+  const nonebuttonstyle = backside === "none" 
+  ? { backgroundColor: "blue", ...styles.backbutton } 
+  : { backgroundColor: "gray", ...styles.backbutton };
+
+  const essentialsButtonStyle = backside === "essentials" 
+  ? { backgroundColor: "blue", ...styles.backbutton } 
+  : { backgroundColor: "gray", ...styles.backbutton };
 
   const handleInputChange =
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
@@ -22,16 +30,38 @@ const BusinessCardGenerator: React.FC = () => {
       setter(e.target.value);
     };
 
-    const handlePreview = async () => {
-      const cardBytes = await TenEssentials(name, title, email, number);
+    const generateCardBytes = async (
+      name: string,
+      title: string,
+      email: string,
+      number: string,
+      backside: string
+    ): Promise<Uint8Array> => {
+      // Generate the frontside PDF
+      const frontside = await GenerateCard(name, title, email, number);
     
-      // Convert card bytes to Base64 string
+      // Add backside if required
+      let cardBytes: Uint8Array = frontside;
+      if (backside === "essentials") {
+        console.log("Adding essentials backside");
+        // Combine frontside and backside (this might involve appending pages or merging PDFs)
+        cardBytes = await AddBackside(frontside);  // Assuming AddBackside adds the backside correctly
+      }
+      return cardBytes;
+    };
+    
+
+    const handlePreview = async () => {
+      const cardBytes = await generateCardBytes(name, title, email, number, backside);
+      
+      // Convert the PDF to base64
       const base64Pdf = await toBase64(cardBytes);
     
-      // Embed Base64 as data URL (including prefix)
+      // Set the base64-encoded PDF URL for preview
       const previewUrl = `data:application/pdf;base64,${base64Pdf}`;
-      setPreviewPdf(previewUrl); // Update preview with the generated PDF
+      setPreviewPdf(previewUrl);
     };
+    
     
     const toBase64 = (pdfBytes: Uint8Array): Promise<string> => {
       return new Promise((resolve) => {
@@ -47,15 +77,18 @@ const BusinessCardGenerator: React.FC = () => {
     };
     
     const handleGenerateAction = async () => {
-      const cardBytes = await GenerateCard(name, title, email, number);
-    
+      const cardBytes = await generateCardBytes(name, title, email, number, backside);
+      
+      // Handle the template type
       if (templateType === "template") {
-        const blob = new Blob([cardBytes], { type: 'application/pdf' });
-        saveAs(blob, 'BusinessCard.pdf');
+        const blob = new Blob([cardBytes], { type: "application/pdf" });
+        saveAs(blob, "BusinessCard.pdf");
       } else if (templateType === "avery5371") {
         await CreateAvery5371Sheet(cardBytes);
       }
     };
+    
+    
 
   return (
     <div style={styles.container}>
@@ -111,7 +144,24 @@ const BusinessCardGenerator: React.FC = () => {
       placeholder="Enter your number"
     />
   </div>
-  
+
+  <div>
+  <label htmlFor="templateType">Back of Card?</label>
+  </div>
+
+  <div style={styles.row}>
+  <div style={styles.rowItem}>
+  <button style={nonebuttonstyle} onClick={() => setBackSide("none")}>
+    Blank
+  </button>
+  </div>
+  <div style={styles.rowItem}>
+  <button style={essentialsButtonStyle} onClick={() => setBackSide("essentials")}>
+    10 Essentials
+  </button>
+  </div>
+  </div>
+
   {/* Preview Button */}
   <button style={styles.button} onClick={handlePreview}>
     Preview
@@ -231,6 +281,15 @@ const styles: { [key: string]: React.CSSProperties } = {
     backgroundColor: "#4CAF50",
     color: "white",
     fontSize: "16px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
+  backbutton: {
+    padding: "10px",
+    color: "white",
+    fontSize: "16px",
+    width: "100%",
     border: "none",
     borderRadius: "5px",
     cursor: "pointer",
