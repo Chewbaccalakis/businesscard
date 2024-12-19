@@ -1,4 +1,4 @@
-import { PDFDocument, degrees } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
 
 // Page Size
 const width = 3.5 * 72;  // 3.5 inches = 252 points
