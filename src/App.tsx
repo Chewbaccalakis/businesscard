@@ -4,6 +4,7 @@ import { saveAs } from 'file-saver';
 import { GenerateCard } from "./components/GenerateCard";
 import { CreateAvery5371Sheet } from './components/Avery5371';
 import { AddBackside } from './components/AddBackside';
+import { GenericFront } from './components/GenericFront';
 
 const BusinessCardGenerator: React.FC = () => {
   // State variables with appropriate types
@@ -18,6 +19,19 @@ const BusinessCardGenerator: React.FC = () => {
   const [templateType, setTemplateType] = useState<string>("null");
   const [backside, setBackSide] = useState<string>("none")
 
+
+  const GenericCard = async (setName, setLine1, setLine2, setLine3, setLine4, setLine5, setLine6) => {
+    const data = await GenericFront();  // Get data from the external function
+  
+    // Directly set the state with returned values
+    setName(data.Name);
+    setLine1(data.Line1);
+    setLine2(data.Line2);
+    setLine3(data.Line3);
+    setLine4(data.Line4);
+    setLine5(data.Line5);
+    setLine6(data.Line6);
+  };
 
   const nonebuttonstyle = backside === "none" 
   ? { backgroundColor: "orange", ...styles.backbutton } 
@@ -176,6 +190,10 @@ const BusinessCardGenerator: React.FC = () => {
   {/* Preview Button */}
   <button style={styles.button} onClick={handlePreview}>
     Preview
+  </button>
+
+  <button style={styles.button} onClick={() => GenericCard(setName, setLine1, setLine2, setLine3, setLine4, setLine5, setLine6)}>
+  Generic
   </button>
 
   <div style={styles.row}>
