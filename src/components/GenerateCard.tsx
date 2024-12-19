@@ -30,6 +30,15 @@ const FootnoteColor = rgb(92 / 255, 92 / 255, 92 / 255);
 //
 
 const state = { headerX: 0, headerEndX: 0 }; // state for sides of header
+const IconList = [
+  '/assets/email.png',
+  '/assets/social/www.png',
+  '/assets/social/facebook.png',
+  '',
+  '',
+  '',
+];
+
 
 // Draw Header Function
 const drawHeader = (
@@ -87,6 +96,7 @@ const drawHeader = (
       const ySpacing = 10;
       const currentY = startY - i * ySpacing;  // Adjust y for each line
       const currentText = info[i];  // Get the text for this line
+      const currentImg = IconList[i];
       page.drawText(currentText, {
         x: infoX,
         y: currentY,
@@ -94,15 +104,15 @@ const drawHeader = (
         font: font,
         color: ContactInfoColor,
     })
-      if (cardType === 'generic') {
-        const infoImageBytes = await fetch('/assets/email.png').then((res) => res.arrayBuffer())
+      if (cardType === 'generic' && currentImg) {
+        const infoImageBytes = await fetch(currentImg).then((res) => res.arrayBuffer())
         const infoImage = await pdfDoc.embedPng(infoImageBytes)
-        const infoDims = infoImage.scale(0.02)
+        const infoDims = infoImage.scale(0.018)
 
         page.drawImage(
           infoImage, {
             x: state.headerX,
-            y: currentY - 12,
+            y: currentY - 11,
             width: infoDims.width,
             height: infoDims.height,
         });
